@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>WEBMAP OFFRE DE SOIN EN COTE D'IVOIRE</title>
+  <link rel="stylesheet" href="./resources/ol.css">
+  <link rel="stylesheet" href="./resources/fontawesome-all.min.css">
+  <link rel="stylesheet" href="./resources/photon-geocoder-autocomplete.min.css">
+  <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+  <link rel="stylesheet" href="./resources/qgis2web.css">
+  <link rel="stylesheet" href="./resources/custom.css">
+</head>
+<body class="auth-locked">
+  <div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="auth-card">
+      <div class="auth-logo"><i class="fas fa-heartbeat"></i></div>
+      <div class="auth-kicker">ACCÈS SÉCURISÉ</div>
+      <h2 id="authTitle">WEBMAP OFFRE DE SOIN</h2>
+      <p class="auth-subtitle">Identifiez votre profil pour accéder à la carte sanitaire de Côte d’Ivoire.</p>
+      <form id="authForm" autocomplete="on">
+        <label for="authProfile">Profil</label>
+        <div class="auth-input-wrap">
+          <i class="fas fa-user-shield"></i>
+          <select id="authProfile" required>
+            <option value="director">Directeur</option>
+            <option value="supervisors">Superviseurs</option>
+            <option value="technician">Technicien</option>
+            <option value="users">Utilisateurs</option>
+          </select>
+        </div>
+        <label for="authPassword">Mot de passe</label>
+        <div class="auth-input-wrap password-wrap">
+          <i class="fas fa-lock"></i>
+          <input id="authPassword" type="password" placeholder="Saisissez le mot de passe" autocomplete="current-password" required>
+          <button type="button" class="auth-eye" id="togglePassword" aria-label="Afficher le mot de passe"><i class="fas fa-eye"></i></button>
+        </div>
+        <button type="submit" class="auth-submit" id="authSubmit"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+      </form>
+      <div class="auth-message" id="authMessage" aria-live="polite"></div>
+      <div class="auth-security-note"><i class="fas fa-shield-alt"></i> Session protégée dans cet onglet. Cinq échecs consécutifs déclenchent un verrouillage temporaire.</div>
+    </div>
+  </div>
+  <header class="app-header">
+    <button class="mobile-panel-btn left-btn" id="toggleLeft" title="Afficher/masquer les requêtes"><i class="fas fa-filter"></i></button>
+    <div class="brand-mark"><i class="fas fa-heartbeat"></i></div>
+    <div class="header-title-wrap">
+      <div class="header-kicker">SYSTÈME D'INFORMATION SANITAIRE</div>
+      <h1>WEBMAP OFFRE DE SOIN EN COTE D'IVOIRE</h1>
+    </div>
+    <div class="header-user-zone">
+      <div class="header-profile" title="Profil connecté"><i class="fas fa-user-shield"></i><span id="currentProfile">—</span></div>
+      <button class="logout-btn" id="logoutBtn" title="Se déconnecter"><i class="fas fa-sign-out-alt"></i><span>Déconnexion</span></button>
+    </div>
+    <button class="mobile-panel-btn right-btn" id="toggleRight" title="Afficher/masquer les couches"><i class="fas fa-layer-group"></i></button>
+  </header>
+
+  <main class="app-layout">
+    <aside class="side-panel left-panel" id="leftPanel">
+      <div class="panel-heading">
+        <div><span class="eyebrow">ANALYSE</span><h2><i class="fas fa-filter"></i> Requêtes & recherche</h2></div>
+      </div>
+
+      <section class="panel-section search-section">
+        <div class="section-title"><i class="fas fa-search"></i> Recherche d'entités</div>
+        <label for="searchLayer">Couche</label>
+        <select id="searchLayer"></select>
+        <label for="searchField">Variable de recherche</label>
+        <select id="searchField"></select>
+        <label for="entitySearch">Valeur recherchée</label>
+        <div class="search-autocomplete-wrap">
+          <div class="search-line">
+            <input id="entitySearch" type="search" placeholder="Commencez à saisir…" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
+            <button id="searchBtn" class="icon-action" title="Rechercher"><i class="fas fa-search"></i></button>
+          </div>
+          <div id="searchSuggestions" class="suggestion-box" role="listbox"></div>
+        </div>
+        <div id="searchHint" class="micro-copy">Choisissez une variable puis sélectionnez une proposition issue des données.</div>
+      </section>
+
+      <section class="panel-section query-section">
+        <div class="section-title"><i class="fas fa-sliders-h"></i> Requête multi-couches simultanée</div>
+        <div class="micro-copy query-intro">Définissez des critères pour les centres de santé et/ou les régions sanitaires. Les deux blocs sont exécutés en une seule opération.</div>
+        <div class="relation-mode"><i class="fas fa-link"></i><div><strong>Mode relationnel spatial activé</strong><span>Si une région sanitaire est sélectionnée, seuls les centres réellement situés à l’intérieur de cette région seront retenus.</span></div></div>
+
+        <div class="layer-query-block centers-query">
+          <div class="layer-query-header">
+            <label class="layer-query-toggle"><input type="checkbox" id="queryCentersEnabled" checked><span><i class="fas fa-hospital"></i> Centres de santé</span></label>
+            <button id="addCenterCriterion" class="text-action"><i class="fas fa-plus"></i> Critère</button>
+          </div>
+          <div class="logic-row compact">
+            <span>Combinaison</span>
+            <select id="logicCenters" aria-label="Combinaison des critères centres de santé">
+              <option value="AND">Tous les critères (ET)</option>
+              <option value="OR">Au moins un critère (OU)</option>
+            </select>
+          </div>
+          <div id="centerCriteriaContainer" class="criteria-container"></div>
+          <div class="micro-copy">Sans valeur saisie, ce bloc est ignoré.</div>
+        </div>
+
+        <div class="layer-query-block regions-query">
+          <div class="layer-query-header">
+            <label class="layer-query-toggle"><input type="checkbox" id="queryRegionsEnabled" checked><span><i class="fas fa-draw-polygon"></i> Régions sanitaires</span></label>
+            <button id="addRegionCriterion" class="text-action"><i class="fas fa-plus"></i> Critère</button>
+          </div>
+          <div class="logic-row compact">
+            <span>Combinaison</span>
+            <select id="logicRegions" aria-label="Combinaison des critères régions sanitaires">
+              <option value="AND">Tous les critères (ET)</option>
+              <option value="OR">Au moins un critère (OU)</option>
+            </select>
+          </div>
+          <div id="regionCriteriaContainer" class="criteria-container"></div>
+          <div class="micro-copy">Sans valeur saisie, ce bloc est ignoré.</div>
+        </div>
+
+        <div class="action-row query-actions">
+          <button id="runQuery" class="primary-action"><i class="fas fa-play"></i> Exécuter simultanément</button>
+          <button id="resetQuery" class="secondary-action"><i class="fas fa-undo"></i> Réinitialiser</button>
+        </div>
+      </section>
+
+      <section class="panel-section stats-section">
+        <div class="section-title"><i class="fas fa-chart-bar"></i> Statistiques</div>
+        <div id="statsSummary" class="stats-grid"></div>
+        <div id="statsChart" class="mini-chart"></div>
+      </section>
+
+      <section class="panel-section results-section">
+        <div class="section-title-row">
+          <div class="section-title"><i class="fas fa-list"></i> Résultats</div>
+          <span id="resultCount" class="count-pill">0</span>
+        </div>
+        <div id="resultsList" class="results-list">
+          <div class="empty-state"><i class="fas fa-mouse-pointer"></i><span>Lancez une recherche ou une requête.</span></div>
+        </div>
+      </section>
+
+      <section class="panel-section export-section">
+        <div class="section-title"><i class="fas fa-file-export"></i> Exporter les résultats</div>
+        <div class="export-grid">
+          <button id="exportPdf" class="export-button pdf" disabled><i class="fas fa-file-pdf"></i><span>PDF</span></button>
+          <button id="exportExcel" class="export-button excel" disabled><i class="fas fa-file-excel"></i><span>Excel</span></button>
+        </div>
+        <div id="exportNote" class="micro-copy">Lancez une requête ou une recherche pour activer les exports.</div>
+        <div id="exportStatus" class="export-status"></div>
+      </section>
+    </aside>
+
+    <section class="map-stage">
+      <div class="map-toolbar">
+        <button id="fitAllBtn" class="map-tool"><i class="fas fa-globe-africa"></i><span>Vue Côte d'Ivoire</span></button>
+        <button id="clearHighlightBtn" class="map-tool"><i class="fas fa-eraser"></i><span>Effacer sélection</span></button>
+        <div class="selection-status" id="selectionStatus"><span class="status-dot"></span> Aucune sélection</div>
+      </div>
+      <div id="map">
+        <div id="popup" class="ol-popup">
+          <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+          <div id="popup-content"></div>
+        </div>
+      </div>
+      <div class="map-footer-note"><i class="fas fa-info-circle"></i> Cliquez sur une entité pour consulter ses attributs. Les résultats de recherche/requête sont surlignés en jaune.</div>
+    </section>
+
+    <aside class="side-panel right-panel" id="rightPanel">
+      <div class="panel-heading">
+        <div><span class="eyebrow">AFFICHAGE</span><h2><i class="fas fa-layer-group"></i> Couches</h2></div>
+      </div>
+
+      <section class="panel-section">
+        <div class="section-title"><i class="fas fa-map"></i> Composition cartographique</div>
+        <div id="layerControls" class="layer-controls"></div>
+      </section>
+
+      <section class="panel-section legend-section">
+        <div class="section-title"><i class="fas fa-list-ul"></i> Légende</div>
+        <div class="legend-block">
+          <div class="legend-layer-title">Région sanitaire</div>
+          <div class="legend-item"><img src="styles/legend/Rgionsanitaire_1.png" alt=""><span>Limite de région sanitaire</span></div>
+        </div>
+        <div class="legend-block">
+          <div class="legend-layer-title">Centre de santé</div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_0.png" alt=""><span>Centre de Santé Rural</span></div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_1.png" alt=""><span>Centre de Santé Urbain</span></div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_2.png" alt=""><span>Centre Médico-social</span></div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_3.png" alt=""><span>Clinique</span></div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_4.png" alt=""><span>Centre communautaire</span></div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_5.png" alt=""><span>Hôpital Général</span></div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_6.png" alt=""><span>Centre Hospitalier Régional</span></div>
+          <div class="legend-item"><img src="styles/legend/Centredesant_2_7.png" alt=""><span>Centre Hospitalier Universitaire</span></div>
+        </div>
+      </section>
+
+      <section class="panel-section about-section">
+        <div class="section-title"><i class="fas fa-database"></i> Données chargées</div>
+        <div class="data-card"><span>Centres de santé</span><strong id="centerTotal">—</strong></div>
+        <div class="data-card"><span>Régions sanitaires</span><strong id="regionTotal">—</strong></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="./resources/qgis2web_expressions.js"></script>
+  <script src="./resources/functions.js"></script>
+  <script src="./resources/ol.js"></script>
+  <script src="./resources/ol-layerswitcher.js"></script>
+  <script src="./resources/photon-geocoder-autocomplete.min.js"></script>
+  <script src="./resources/olms.js"></script>
+  <script src="./layers/Rgionsanitaire_1.js"></script>
+  <script src="./layers/Centredesant_2.js"></script>
+  <script src="./styles/Rgionsanitaire_1_style.js"></script>
+  <script src="./styles/Centredesant_2_style.js"></script>
+  <script src="./layers/layers.js"></script>
+  <script src="./resources/Autolinker.min.js"></script>
+  <script src="./resources/qgis2web.js"></script>
+  <script src="./resources/custom.js"></script>
+  <script src="./resources/auth.js"></script>
+</body>
+</html>
