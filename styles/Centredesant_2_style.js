@@ -143,12 +143,14 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
 
         case 'ICA':
             return [ new ol.style.Style({
-        image: new ol.style.RegularShape({
-                  points: 3,
-                  radius: 12,
-                  rotation: 0,
-                  fill: new ol.style.Fill({color: '#ff8c00'}),
-                  stroke: new ol.style.Stroke({color: '#6b2f00', width: 2.5})
+        image: new ol.style.Icon({
+                  imgSize: [64, 64],
+                  scale: 0.75,
+                  anchor: [32, 32],
+                  anchorXUnits: "pixels",
+                  anchorYUnits: "pixels",
+                  rotation: 0.0,
+                  src: "styles/heart_cardiology.svg"
             }),
         text: createTextStyle(feature, resolution, labelText, labelFont,
                               labelFill, placement, bufferColor,
