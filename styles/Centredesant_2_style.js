@@ -145,17 +145,17 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
             return [ new ol.style.Style({
         image: new ol.style.Icon({
                   imgSize: [64, 64],
-                  scale: 0.55,
+                  scale: 0.30,
                   anchor: [32, 32],
                   anchorXUnits: "pixels",
                   anchorYUnits: "pixels",
                   rotation: 0.0,
+                  opacity: 0.9,
                   src: "styles/heart_cardiology.svg"
             }),
         text: createTextStyle(feature, resolution, labelText, labelFont,
                               labelFill, placement, bufferColor,
-                              bufferWidth, textAlign, offsetX, offsetY, overflow, repeat),
-        zIndex: 50
+                              bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
             break;
 
