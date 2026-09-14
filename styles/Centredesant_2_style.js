@@ -20,7 +20,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
 
         case 'Centre de Santé Urbain':
             return [ new ol.style.Style({
@@ -37,7 +37,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
 
         case 'Centre Médico-social':
             return [ new ol.style.Style({
@@ -54,7 +54,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
 
         case 'Clinic':
             return [ new ol.style.Style({
@@ -71,7 +71,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
 
         case 'Community-based Health Planning and Services':
             return [ new ol.style.Style({
@@ -88,7 +88,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
 
         case 'Hôpital Général':
             return [ new ol.style.Style({
@@ -105,7 +105,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
 
         case 'Hospitalier Régional':
             return [ new ol.style.Style({
@@ -122,7 +122,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
 
         case 'Hospitalier Universitaire':
             return [ new ol.style.Style({
@@ -139,7 +139,35 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
                               labelFill, placement, bufferColor,
                               bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
     })];
-			break;
+            break;
+
+        case 'ICA':
+            return [ new ol.style.Style({
+        image: new ol.style.RegularShape({
+                  points: 3,
+                  radius: 12,
+                  rotation: 0,
+                  fill: new ol.style.Fill({color: '#ff8c00'}),
+                  stroke: new ol.style.Stroke({color: '#6b2f00', width: 2.5})
+            }),
+        text: createTextStyle(feature, resolution, labelText, labelFont,
+                              labelFill, placement, bufferColor,
+                              bufferWidth, textAlign, offsetX, offsetY, overflow, repeat),
+        zIndex: 50
+    })];
+            break;
+
+        default:
+            return [ new ol.style.Style({
+        image: new ol.style.Circle({
+                  radius: 7,
+                  fill: new ol.style.Fill({color: '#8e44ad'}),
+                  stroke: new ol.style.Stroke({color: '#4a235a', width: 2})
+            }),
+        text: createTextStyle(feature, resolution, labelText, labelFont,
+                              labelFill, placement, bufferColor,
+                              bufferWidth, textAlign, offsetX, offsetY, overflow, repeat)
+    })];
     }};
 
 var style_Centredesant_2 = function(feature, resolution){
@@ -147,8 +175,8 @@ var style_Centredesant_2 = function(feature, resolution){
         feature: feature,
         variables: {}
     };
-    
-    var labelText = ""; 
+
+    var labelText = "";
     var value = feature.get("Type");
     var labelFont = "10px, sans-serif";
     var labelFill = "#000000";
@@ -163,7 +191,7 @@ var style_Centredesant_2 = function(feature, resolution){
     if ("" !== null) {
         labelText = String("");
     }
-    
+
     var style = categories_Centredesant_2(feature, value, size, resolution, labelText,
                           labelFont, labelFill, bufferColor,
                           bufferWidth, placement, textAlign, offsetX, offsetY, overflow, repeat);
