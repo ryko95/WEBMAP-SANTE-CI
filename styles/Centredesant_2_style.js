@@ -66,7 +66,7 @@ function categories_Centredesant_2(feature, value, size, resolution, labelText,
         case 'Community-based Health Planning and Services':
             return centreIconStyle(feature, resolution, labelText, labelFont, labelFill, bufferColor, bufferWidth, placement, textAlign, offsetX, offsetY, overflow, repeat, 'styles/health_hospital_emergency.svg', [580,580], 0.02586206896551724, [290,290], 1);
         case 'Centre Social':
-            return centreIconStyle(feature, resolution, labelText, labelFont, labelFill, bufferColor, bufferWidth, placement, textAlign, offsetX, offsetY, overflow, repeat, 'styles/centre_social.svg', [64,64], 0.25, [32,32], 1);
+            return centreIconStyle(feature, resolution, labelText, labelFont, labelFill, bufferColor, bufferWidth, placement, textAlign, offsetX, offsetY, overflow, repeat, 'styles/centre_social.svg', [64,64], 0.14, [32,32], 1);
         case 'Hôpital Général':
             return centreIconStyle(feature, resolution, labelText, labelFont, labelFill, bufferColor, bufferWidth, placement, textAlign, offsetX, offsetY, overflow, repeat, 'styles/cross_2.svg', [579.997,579.997], 0.037931230678779376, [289.9985,289.9985], 1);
         case 'Hospitalier Régional':
