@@ -84,7 +84,7 @@
   function getFields(key){
     const fs=layerDefs[key].source.getFeatures();
     if(!fs.length) return [];
-    return fs[0].getKeys().filter(k=>k!=='geometry');
+    return [...new Set(fs.flatMap(f=>f.getKeys()))].filter(k=>k!=='geometry');
   }
   function isNumeric(key,field){return numericFields[key].has(field);}
   function totalResults(results=currentResults){return (results.centers||[]).length+(results.regions||[]).length;}
@@ -297,9 +297,13 @@
   }
 
   function filterCentersByRegions(centers,regions){
-    const selected=new Set(distinctRegionNames(regions).map(normalize));
-    if(!selected.size) return [];
-    return (centers||[]).filter(f=>selected.has(normalize(f.get('REG_SAN'))));
+    return (centers||[]).filter(f=>{
+      const point=f.getGeometry();
+      return point && (regions||[]).some(region=>{
+        const polygon=region.getGeometry();
+        return polygon && polygon.intersectsCoordinate(point.getCoordinates());
+      });
+    });
   }
 
   function relationalQueryResults(){
@@ -527,7 +531,7 @@
     if(!features.length)return '';
     const field=layerDefs[key].chartField, counts={};
     features.forEach(f=>{const v=f.get(field)||'Non renseigné';counts[v]=(counts[v]||0)+1;});
-    const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6), max=entries.length?entries[0][1]:1;
+    const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]), max=entries.length?entries[0][1]:1;
     return `<div class="chart-title">${escapeHtml(layerDefs[key].shortLabel)} — répartition par ${escapeHtml(labelOf(field))}</div>`+
       entries.map(([k,v])=>`<div class="bar-row"><div class="bar-label" title="${escapeHtml(k)}">${escapeHtml(k)}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%"></div></div><div class="bar-value">${v}</div></div>`).join('');
   }
@@ -988,7 +992,27 @@
     }
   }
 
+  // Relier chaque centre à sa région à partir de sa position cartographique.
+  function refreshCenterRegionLinks(){
+    const regions=layerDefs.regions.source.getFeatures();
+    layerDefs.centers.source.getFeatures().forEach(center=>{
+      const point=center.getGeometry();
+      if(!point)return;
+      const region=regions.find(r=>{
+        const polygon=r.getGeometry();
+        return polygon && polygon.intersectsCoordinate(point.getCoordinates());
+      });
+      center.set('REG_SAN',region?region.get('REG_2012'):null);
+      center.set('DIST_SAN',region?region.get('DISTRICT'):null);
+      center.set('PCODE_SAN',region?region.get('PCODE2'):null);
+      const coordinates=ol.proj.toLonLat(point.getCoordinates());
+      if(center.get('Long')==null)center.set('Long',coordinates[0]);
+      if(center.get('Lat')==null)center.set('Lat',coordinates[1]);
+    });
+  }
+
   function wireUi(){
+    refreshCenterRegionLinks();
     populateSearchLayer();buildLayerControls();createCriterion('centers');createCriterion('regions');
     el('centerTotal').textContent=fmt(layerDefs.centers.source.getFeatures().length);
     el('regionTotal').textContent=fmt(layerDefs.regions.source.getFeatures().length);

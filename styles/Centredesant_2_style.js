@@ -1,31 +1,7 @@
 var size = 0;
 var placement = 'point';
 
-/* Synchronisation des ajouts du fichier centres transmis le 15/09/2026.
-   Le fichier de données est déjà chargé à ce stade, mais la source OpenLayers
-   n'est créée qu'ensuite dans layers.js : les nouveaux objets sont donc pris
-   en compte par la carte, les recherches, les requêtes et les statistiques. */
-(function syncCentres20260915(){
-    if (typeof json_Centredesant_2 === 'undefined' || !json_Centredesant_2 || !Array.isArray(json_Centredesant_2.features)) return;
-
-    var additions = [
-        {"type":"Feature","properties":{"Pays":null,"Region":null,"Nom de str":"ADIO","Type":"Centre de Santé Rural","Propriete":null,"Lat":null,"Long":null,"nbre infir":null,"nbre medec":null,"nbre sage":null,"incidence":null,"incidenc_1":null,"incidenc_2":null},"geometry":{"type":"Point","coordinates":[-4.754476644621328,7.941802424333684]}},
-        {"type":"Feature","properties":{"Pays":null,"Region":null,"Nom de str":"reyo","Type":"Clinic","Propriete":null,"Lat":null,"Long":null,"nbre infir":null,"nbre medec":null,"nbre sage":null,"incidence":null,"incidenc_1":null,"incidenc_2":null},"geometry":{"type":"Point","coordinates":[-2.991183323030268,9.198842335222542]}},
-        {"type":"Feature","properties":{"Pays":null,"Region":null,"Nom de str":"teguere","Type":"Centre Social","Propriete":null,"Lat":null,"Long":null,"nbre infir":null,"nbre medec":null,"nbre sage":null,"incidence":null,"incidenc_1":null,"incidenc_2":null},"geometry":{"type":"Point","coordinates":[-4.525242871456927,9.224542819496969]}}
-    ];
-
-    additions.forEach(function(feature){
-        var p = feature.properties || {};
-        var c = feature.geometry && feature.geometry.coordinates;
-        var exists = json_Centredesant_2.features.some(function(current){
-            var cp = (current && current.properties) || {};
-            var cc = current && current.geometry && current.geometry.coordinates;
-            return cp['Nom de str'] === p['Nom de str'] && Array.isArray(cc) && Array.isArray(c) && cc[0] === c[0] && cc[1] === c[1];
-        });
-        if (!exists) json_Centredesant_2.features.push(feature);
-    });
-    json_Centredesant_2.dataVersion = '2026-09-15';
-})();
+// Les centres sont chargés depuis layers/Centredesant_2.js.
 
 function centreIconStyle(feature, resolution, labelText, labelFont, labelFill,
                          bufferColor, bufferWidth, placement, textAlign,
