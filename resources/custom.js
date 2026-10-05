@@ -45,6 +45,19 @@
       if (type === 'Point' || type === 'MultiPoint') {
         return new ol.style.Style({
           image:new ol.style.Circle({radius:9,fill:new ol.style.Fill({color:'#ffd400'}),stroke:new ol.style.Stroke({color:'#7f6500',width:2.5})}),
+          text:new ol.style.Text({
+            text:String(feature.get('Nom de str') || 'Structure sans nom'),
+            font:'600 12px "Segoe UI", Arial, sans-serif',
+            offsetY:-19,
+            textAlign:'center',
+            textBaseline:'bottom',
+            fill:new ol.style.Fill({color:'#312e81'}),
+            stroke:new ol.style.Stroke({color:'#ffffff',width:3}),
+            backgroundFill:new ol.style.Fill({color:'rgba(255,255,255,0.92)'}),
+            backgroundStroke:new ol.style.Stroke({color:'#c4b5fd',width:1}),
+            padding:[3,5,3,5],
+            overflow:true
+          }),
           zIndex:9999
         });
       }
